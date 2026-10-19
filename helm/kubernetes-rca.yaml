@@ -8,7 +8,7 @@ agent:
   agentId: kubernetes-rca-kaop
   displayName: Kubernetes RCA (kaop)
   # The chart defaults to claude-sonnet-4-6, which overrides the model baked into the image.
-  model: claude-sonnet-5
+  model: claude-opus-5-5
   # The chart requires it, but this image bakes its own spec and prompt and never reads it.
   instructions: Provided by the catalog image.
 controlplane:

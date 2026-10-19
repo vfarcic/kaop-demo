@@ -30,7 +30,7 @@ $KAOP_NOTE"; ALLOW=("Write" "mcp__agentops"); DENY+=("Bash") ;;
   *) echo "unknown condition $C"; exit 1 ;;
 esac
 claude -p "$PROMPT" \
-  --model claude-sonnet-5 \
+  --model "${MODEL:-claude-sonnet-5}" \
   --mcp-config "$MCP" --strict-mcp-config \
   --output-format stream-json --verbose \
   --allowedTools "${ALLOW[@]}" \
