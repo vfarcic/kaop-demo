@@ -1,0 +1,3 @@
+Warning: v1 Endpoints is deprecated in v1.33+; use discovery.k8s.io/v1 EndpointSlice
+NAME     ENDPOINTS                                             AGE
+orders   10.244.0.104:8080,10.244.0.98:8080,10.244.0.99:8080   7m30s

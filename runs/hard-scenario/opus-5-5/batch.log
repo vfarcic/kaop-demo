@@ -1,0 +1,70 @@
+=== claude-code iteration 1 (18:14:14)
+canary 18:17:59
+decoy  18:18:59
+status       1 000     142 200      23 500 
+{
+  "duration_ms": 116716,
+  "num_turns": 10,
+  "total_cost_usd": 0.44114100000000006,
+  "is_error": false
+}
+     15 200
+=== claude-code-kaop-only iteration 1 (18:23:00)
+canary 18:26:44
+decoy  18:27:44
+status       2 000     144 200      20 500 
+{
+  "duration_ms": 144965,
+  "num_turns": 14,
+  "total_cost_usd": 0.46030360000000003,
+  "is_error": false
+}
+     13 200
+      2 500
+=== claude-code iteration 2 (18:32:15)
+canary 18:35:59
+decoy  18:36:59
+status       1 000     138 200      27 500 
+{
+  "duration_ms": 156053,
+  "num_turns": 11,
+  "total_cost_usd": 0.289924,
+  "is_error": false
+}
+     14 200
+=== claude-code-kaop-only iteration 2 (18:41:39)
+canary 18:45:22
+decoy  18:46:22
+status       1 000     138 200      24 500 
+{
+  "duration_ms": 145570,
+  "num_turns": 7,
+  "total_cost_usd": 0.2324168,
+  "is_error": false
+}
+     10 200
+      5 500
+=== claude-code iteration 3 (18:50:53)
+canary 18:54:34
+decoy  18:55:34
+status       1 000     140 200      25 500 
+{
+  "duration_ms": 125067,
+  "num_turns": 10,
+  "total_cost_usd": 0.3570922,
+  "is_error": false
+}
+     15 200
+=== claude-code-kaop-only iteration 3 (18:59:43)
+canary 19:03:26
+decoy  19:04:26
+status       1 000     134 200      36 500 
+{
+  "duration_ms": 103342,
+  "num_turns": 6,
+  "total_cost_usd": 0.16076500000000002,
+  "is_error": false
+}
+      9 200
+      5 500
+=== done 19:08:25
