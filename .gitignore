@@ -1,2 +1,3 @@
 kubeconfig.yaml
 .env
+.*-response.json

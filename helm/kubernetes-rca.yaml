@@ -1,0 +1,26 @@
+image:
+  registry: ghcr.io
+  repository: komodorio/agentops-kubernetes-rca
+  # Komodor's catalog ships `latest` with `pullPolicy: Always`. Pinned here by digest instead.
+  tag: latest@sha256:ae4555e8782957f91918d62e8819e971bd239d480eeb3183eabc7dca334b654b
+  pullPolicy: IfNotPresent
+agent:
+  agentId: kubernetes-rca-kaop
+  displayName: Kubernetes RCA (kaop)
+  # The chart requires it, but this image bakes its own spec and prompt and never reads it.
+  instructions: Provided by the catalog image.
+controlplane:
+  url: https://agentops.komodor.com
+  workerToken:
+    existingSecret: kubernetes-rca-token
+    key: token
+llm:
+  mode: cloud
+  credentialRef: LLM_PROXY_TOKEN
+clusterName: kaop
+rbac:
+  create: true
+  exec:
+    # Komodor's rendered install grants pods/exec cluster-wide. Narrowed to the demo app.
+    namespaces:
+      - shop
