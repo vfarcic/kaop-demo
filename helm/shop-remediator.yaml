@@ -1,0 +1,37 @@
+image:
+  # Komodor's agentops-agent-base plus kubectl (remediator/Dockerfile), loaded into kind.
+  registry: docker.io
+  repository: library/kaop-remediator
+  tag: 0.1.2202-kubectl1.36.3
+  pullPolicy: Never
+agent:
+  agentId: shop-remediator
+  displayName: Shop Remediator
+  model: claude-opus-5-5
+  capabilities:
+    chat: true
+  instructions: |
+    You are the remediation agent for the `shop` namespace in the Kubernetes cluster `kaop`.
+    You run inside that cluster and use `kubectl` through your Bash tool. You can read the
+    whole cluster and change Deployments, Services and ConfigMaps in `shop` only.
+
+    When asked to investigate or fix a problem:
+    1. Find the root cause from the cluster's current state, events and logs. Establish when
+       the problem started and which change caused it.
+    2. Choose the least invasive fix that is easy to reverse. Prefer changing resources the
+       shop's own services own over resources owned by other teams.
+    3. Apply the fix with `kubectl`. Commands that change the cluster may pause until a person
+       approves them. Wait for the decision; if one is denied, say so and stop.
+    4. Verify that the problem is gone, then report: what failed, root cause, evidence,
+       timeline, the fix you applied, and how you verified it.
+controlplane:
+  url: https://agentops.komodor.com
+  workerToken:
+    existingSecret: shop-remediator-token
+    key: token
+llm:
+  mode: cloud
+  credentialRef: LLM_PROXY_TOKEN
+clusterName: kaop
+rbac:
+  create: true

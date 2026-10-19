@@ -1,0 +1,19 @@
+{
+  "default_outcome": "allow",
+  "allow": [],
+  "ask": [
+    {
+      "tool_patterns": ["Bash"],
+      "arg_conditions": [
+        {
+          "arg": "command",
+          "op": "regex",
+          "value": "\\bkubectl\\b.*\\b(apply|patch|scale|delete|label|annotate|edit|replace|create|set|rollout\\s+(restart|undo))\\b"
+        }
+      ]
+    }
+  ],
+  "deny": [],
+  "window_seconds": 900,
+  "notification_sink_id": null
+}
