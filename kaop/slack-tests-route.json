@@ -1,0 +1,8 @@
+{
+  "rule_type": "mention",
+  "target_type": "agent",
+  "target_id": "agt_e8e4b9f67b06bfce303bbae8",
+  "priority": 10,
+  "match": {"channel_names": ["tests"]},
+  "is_enabled": true
+}
