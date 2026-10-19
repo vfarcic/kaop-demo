@@ -1,0 +1,9 @@
+{
+  "name": "DevOps20 #tests",
+  "kind": "slack",
+  "channel_ids": ["CSFMLBLKH"],
+  "channel_names": ["tests"],
+  "subscribed_events": [{"event_type": "run.finished"}],
+  "include_output": true,
+  "is_enabled": true
+}

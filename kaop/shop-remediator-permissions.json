@@ -3,7 +3,9 @@
   "allow": [],
   "ask": [
     {
-      "tool_patterns": ["Bash"],
+      "tool_patterns": [
+        "Bash"
+      ],
       "arg_conditions": [
         {
           "arg": "command",
@@ -15,5 +17,5 @@
   ],
   "deny": [],
   "window_seconds": 900,
-  "notification_sink_id": null
+  "notification_sink_id": "nsink_4dac254ddacb906ee4a89253"
 }
