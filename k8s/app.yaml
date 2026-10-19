@@ -1,0 +1,129 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: shop
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orders
+  namespace: shop
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: orders
+  template:
+    metadata:
+      labels:
+        app: orders
+    spec:
+      containers:
+        - name: orders
+          image: hashicorp/http-echo:1.0.0
+          args:
+            - -listen=:8080
+            - -text=order accepted
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: orders
+  namespace: shop
+spec:
+  selector:
+    app: orders
+  ports:
+    - port: 8080
+      targetPort: 8080
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: storefront
+  namespace: shop
+data:
+  default.conf: |
+    server {
+      listen 80;
+      location /healthz {
+        return 200 "ok\n";
+      }
+      location / {
+        proxy_connect_timeout 2s;
+        proxy_pass http://orders:8080;
+      }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: storefront
+  namespace: shop
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: storefront
+  template:
+    metadata:
+      labels:
+        app: storefront
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.31.7
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 80
+          volumeMounts:
+            - name: config
+              mountPath: /etc/nginx/conf.d
+      volumes:
+        - name: config
+          configMap:
+            name: storefront
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: storefront
+  namespace: shop
+spec:
+  selector:
+    app: storefront
+  ports:
+    - port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shopper
+  namespace: shop
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shopper
+  template:
+    metadata:
+      labels:
+        app: shopper
+    spec:
+      containers:
+        - name: curl
+          image: curlimages/curl:8.23.0
+          command:
+            - sh
+            - -c
+            - |
+              while true; do
+                echo "$(date -u +%H:%M:%S) $(curl -s -m 5 -o /dev/null -w '%{http_code}' http://storefront/checkout)"
+                sleep 2
+              done
