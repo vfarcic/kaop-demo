@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orders-fastpath
+  namespace: shop
+  annotations:
+    owner: payments-team
+    description: Canary of the new orders fast path. Not wired into the storefront yet.
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: orders
+      track: fastpath
+  template:
+    metadata:
+      labels:
+        app: orders
+        track: fastpath
+    spec:
+      containers:
+        - name: orders
+          image: hashicorp/http-echo:1.0.0
+          args:
+            - -listen=:8080
+            - -text=order accepted
+            - -status-code=500
+          ports:
+            - containerPort: 8080

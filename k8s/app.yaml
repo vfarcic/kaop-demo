@@ -127,3 +127,29 @@ spec:
                 echo "$(date -u +%H:%M:%S) $(curl -s -m 5 -o /dev/null -w '%{http_code}' http://storefront/checkout)"
                 sleep 2
               done
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: newsletter
+  namespace: shop
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: newsletter
+  template:
+    metadata:
+      labels:
+        app: newsletter
+    spec:
+      containers:
+        - name: sender
+          image: curlimages/curl:8.23.0
+          command:
+            - sh
+            - -c
+            - |
+              echo "connecting to smtp relay mail.internal:25"
+              curl -s -m 3 telnet://mail.internal:25 || echo "smtp relay unreachable, giving up"
+              exit 1
