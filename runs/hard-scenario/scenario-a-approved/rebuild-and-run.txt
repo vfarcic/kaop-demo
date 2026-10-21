@@ -1,0 +1,13 @@
+canary 23:27:47
+decoy  23:28:48
+status       1 000     139 200      26 500 
+run start 23:30:20
+{
+  "duration_ms": 285842,
+  "num_turns": 6,
+  "total_cost_usd": 0.1982676,
+  "is_error": false
+}
+run end 23:35:08
+
+[exited with code 0]
