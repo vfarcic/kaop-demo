@@ -3,7 +3,9 @@
 # Used by setup.sh, and between sections of the demo to start from the same incident.
 set -euo pipefail
 cd "$(dirname "$0")"
-export KUBECONFIG="${KUBECONFIG:-$PWD/kubeconfig.yaml}"
+# Always the repo's cluster, whatever KUBECONFIG the shell has (the Claude Code with KAOP
+# directory points it at a file that doesn't exist).
+export KUBECONFIG=$PWD/kubeconfig.yaml
 
 # The namespace stays: the agents' Roles live in it. Its workloads, config and events go,
 # so nothing from an earlier run (an applied fix, its events) is left for an agent to find.

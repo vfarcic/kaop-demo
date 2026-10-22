@@ -6,7 +6,9 @@
 # doesn't ask again. Run it from the repo root, in `devbox shell`. Safe to re-run.
 set -euo pipefail
 cd "$(dirname "$0")"
-export KUBECONFIG="${KUBECONFIG:-$PWD/kubeconfig.yaml}"
+# Always the repo's cluster, whatever KUBECONFIG the shell has (the Claude Code with KAOP
+# directory points it at a file that doesn't exist).
+export KUBECONFIG=$PWD/kubeconfig.yaml
 
 KAOP=https://agentops.komodor.com
 CHART=oci://ghcr.io/komodorio/charts/agentops-agent-base
