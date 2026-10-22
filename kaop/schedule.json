@@ -1,0 +1,8 @@
+{
+  "cron_expr": "*/5 * * * *",
+  "timezone": "UTC",
+  "is_enabled": false,
+  "input": {
+    "prompt": "Routine health check of the shop. Check whether checkouts in the shop namespace are succeeding right now (the shopper workload logs the HTTP status of every checkout it makes). If they are healthy, reply only with \"healthy\" and stop. If they are not, investigate, fix it, verify, and report what failed, the root cause, evidence, timeline, the fix you applied, and how you verified it."
+  }
+}

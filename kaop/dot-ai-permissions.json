@@ -9,6 +9,5 @@
     }
   ],
   "deny": [],
-  "window_seconds": 900,
-  "notification_sink_id": "nsink_4dac254ddacb906ee4a89253"
+  "window_seconds": 900
 }
