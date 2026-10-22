@@ -125,7 +125,25 @@ if command -v claude >/dev/null; then
     # Only in claude-code-kaop: `claude mcp add` applies to the directory it runs in.
     (cd "$RUNS/claude-code-kaop" && { claude mcp get agentops >/dev/null 2>&1 \
         || claude mcp add --transport http agentops "$MCP_URL" >/dev/null; })
-    echo "KAOP is added to Claude Code in $RUNS/claude-code-kaop."
+    # A developer with KAOP has no cluster access of their own. On a laptop that runs the
+    # cluster (kind), a missing kubeconfig isn't enough: Claude Code can mint one with
+    # `kind get kubeconfig`. These rules stand in for a laptop that isn't the cluster's host.
+    mkdir -p "$RUNS/claude-code-kaop/.claude"
+    cat > "$RUNS/claude-code-kaop/.claude/settings.json" <<'EOF'
+{
+  "permissions": {
+    "deny": [
+      "Bash(kubectl:*)",
+      "Bash(kind:*)",
+      "Bash(docker:*)",
+      "Bash(helm:*)",
+      "Read(~/.kube/**)",
+      "Read(//**/kubeconfig.yaml)"
+    ]
+  }
+}
+EOF
+    echo "KAOP is added to Claude Code in $RUNS/claude-code-kaop, with no cluster access of its own."
     pause "If you haven't signed in to KAOP from Claude Code before: in another terminal, cd $RUNS/claude-code-kaop, run claude, type /mcp, select agentops and sign in."
 else
     echo "Claude Code not found. Add this remote MCP server (HTTP, OAuth) to your agent: $MCP_URL"
