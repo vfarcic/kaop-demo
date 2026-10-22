@@ -1,0 +1,2 @@
+{"id":"acta_a5e0f7a162fd6f46a5be7a1d","state":"approved","requested_at":"2026-10-22T01:05:43.541754+00:00","decided_at":"2026-10-22T01:06:11.366914+00:00","decided_via":"slack","description":"Label stable orders pods track=stable and wait for rollout"}
+{"id":"acta_0d4ce74c3aeefd8ca00386a2","state":"denied","requested_at":"2026-10-22T01:06:17.766260+00:00","decided_at":"2026-10-22T01:06:26.425522+00:00","decided_via":"slack","description":"Narrow orders Service selector to stable pods"}
