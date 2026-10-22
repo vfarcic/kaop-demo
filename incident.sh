@@ -5,13 +5,13 @@ set -euo pipefail
 cd "$(dirname "$0")"
 export KUBECONFIG="${KUBECONFIG:-$PWD/kubeconfig.yaml}"
 
-echo "Recreating the shop namespace..."
-kubectl delete namespace shop --ignore-not-found --wait=true >/dev/null
+# The namespace stays: the agents' Roles live in it. Its workloads, config and events go,
+# so nothing from an earlier run (an applied fix, its events) is left for an agent to find.
+echo "Recreating the shop..."
+kubectl apply --filename k8s/app.yaml >/dev/null
+kubectl --namespace shop delete deployment,job,pod,service,configmap,event --all --wait=true >/dev/null
 kubectl apply --filename k8s/app.yaml >/dev/null
 kubectl --namespace shop rollout status deployment/storefront >/dev/null
-
-# The Shop Remediator's write access is a Role in shop, so it goes with the namespace.
-kubectl apply --filename k8s/remediator-rbac.yaml >/dev/null
 
 # A few minutes of healthy history, so the agents can see when it broke.
 echo "Letting the shop run healthy for three minutes..."

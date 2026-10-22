@@ -71,6 +71,8 @@ worker_token() {
     fi
     jq --raw-output .token <<<"$body" | kubectl --namespace kaop create secret generic "$2" \
         --from-file token=/dev/stdin --dry-run=client --output yaml | kubectl apply --filename - >/dev/null
+# The shop namespace comes first: the agents' Roles live in it.
+kubectl apply --filename k8s/app.yaml >/dev/null
 }
 
 # install RELEASE VALUES: installs a worker with Komodor's chart and restarts it to pick up a new token.
@@ -140,6 +142,7 @@ step "Shop Remediator (can change the shop)"
 docker build --quiet --tag "$REMEDIATOR_IMAGE" remediator >/dev/null
 kind load docker-image "$REMEDIATOR_IMAGE" --name kaop >/dev/null
 worker_token shop-remediator shop-remediator-token
+kubectl apply --filename k8s/remediator-rbac.yaml >/dev/null
 install shop-remediator helm/shop-remediator.yaml
 REMEDIATOR_ID=$(agent_id shop-remediator)
 echo "Installed."
