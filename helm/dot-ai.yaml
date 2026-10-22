@@ -1,0 +1,7 @@
+# dot-ai, Viktor's TypeScript Kubernetes agent, the "bring your own agent" example.
+# The Anthropic key and the REST bearer token come from the dot-ai-secrets Secret created beforehand.
+ai:
+  provider: anthropic
+  model: claude-opus-5-5
+secrets:
+  name: dot-ai-secrets

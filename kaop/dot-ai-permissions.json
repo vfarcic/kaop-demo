@@ -1,0 +1,14 @@
+{
+  "default_outcome": "allow",
+  "allow": [],
+  "ask": [
+    {
+      "tool_patterns": [
+        "dot_ai_remediate_execute"
+      ]
+    }
+  ],
+  "deny": [],
+  "window_seconds": 900,
+  "notification_sink_id": "nsink_4dac254ddacb906ee4a89253"
+}

@@ -1,0 +1,25 @@
+image:
+  # Komodor's agentops-agent-base plus the dot-ai wrapper (dotai-worker/), loaded into kind.
+  registry: docker.io
+  repository: library/kaop-dot-ai-worker
+  tag: 0.1.2202-1
+  pullPolicy: Never
+agent:
+  agentId: dot-ai
+  displayName: dot-ai
+  # The chart requires instructions; the wrapper never reads them: dot-ai has its own prompts.
+  instructions: Calls dot-ai's remediate tool. dot-ai does the analysis and the execution.
+controlplane:
+  url: https://agentops.komodor.com
+  workerToken:
+    existingSecret: dot-ai-worker-token
+    key: token
+llm:
+  # The wrapper calls no model itself; dot-ai calls Anthropic with its own key.
+  disabled: true
+env:
+  - name: DOT_AI_AUTH_TOKEN
+    valueFrom:
+      secretKeyRef:
+        name: dot-ai-client
+        key: auth-token
