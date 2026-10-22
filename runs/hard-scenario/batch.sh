@@ -2,8 +2,8 @@
 # Three iterations of each condition on one model, a fresh incident before every run.
 set -uo pipefail
 R=/Users/viktorfarcic/code/kaop-runs
-export MODEL="${MODEL:-claude-opus-5-5}"
-OUT="$R/results/$MODEL"
+export MODEL="${MODEL:-opus}"
+OUT="$R/results/three-runs"
 mkdir -p "$OUT"
 for i in 1 2 3; do
   for c in claude-code claude-code-kaop-only; do
