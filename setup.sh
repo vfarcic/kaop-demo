@@ -83,6 +83,16 @@ install() {
     kubectl --namespace kaop rollout status deployment --selector "app.kubernetes.io/instance=$1" >/dev/null
 }
 
+# online SLUG: waits until the agent's worker has registered with KAOP.
+online() {
+    for _ in $(seq 1 24); do
+        [ "$(api GET /api/v1/agents | jq --raw-output --arg slug "$1" '.[] | select(.id_slug == $slug) | .status')" = online ] && return
+        sleep 5
+    done
+    echo "$1 didn't come online in KAOP. Check: kubectl --namespace kaop logs deployment/$2-agentops-agent-base" >&2
+    exit 1
+}
+
 # permission AGENT FILE: the agent's approval rule, sent to Slack, with you as the approver.
 permission() {
     local id
@@ -153,6 +163,7 @@ step "Kubernetes RCA (read-only, from KAOP's catalog)"
 worker_token kubernetes-rca-kaop kubernetes-rca-token \
     '{"agentId": "kubernetes-rca-kaop", "displayName": "Kubernetes RCA (kaop)", "clusterName": "kaop", "credentialRef": "LLM_PROXY_TOKEN"}'
 install kubernetes-rca helm/kubernetes-rca.yaml
+online kubernetes-rca-kaop kubernetes-rca
 echo "Installed."
 
 step "Shop Remediator (can change the shop)"
@@ -162,6 +173,7 @@ kind load docker-image "$REMEDIATOR_IMAGE" --name kaop >/dev/null
 worker_token shop-remediator shop-remediator-token
 kubectl apply --filename k8s/remediator-rbac.yaml >/dev/null
 install shop-remediator helm/shop-remediator.yaml
+online shop-remediator shop-remediator
 REMEDIATOR_ID=$(agent_id shop-remediator)
 echo "Installed."
 
@@ -182,6 +194,7 @@ docker build --quiet --tag "$DOT_AI_WORKER_IMAGE" dotai-worker >/dev/null
 kind load docker-image "$DOT_AI_WORKER_IMAGE" --name kaop >/dev/null
 worker_token dot-ai dot-ai-worker-token
 install dot-ai-worker helm/dot-ai-worker.yaml
+online dot-ai dot-ai-worker
 DOT_AI_ID=$(agent_id dot-ai)
 echo "Installed."
 
