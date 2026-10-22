@@ -1,3 +1,4 @@
 kubeconfig.yaml
 .env
 .*-response.json
+.kube/
