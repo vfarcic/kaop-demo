@@ -11,6 +11,7 @@ if [ "${WITH_REMEDIATOR:-}" = "true" ]; then kubectl apply --filename k8s/remedi
 sleep 180
 echo "canary $(date -u +%T)"
 kubectl apply --filename k8s/incident/orders-fastpath.yaml >/dev/null
+kubectl --namespace shop rollout status deployment/orders-fastpath >/dev/null
 sleep 60
 echo "decoy  $(date -u +%T)"
 kubectl apply --filename k8s/incident/storefront-config-change.yaml >/dev/null
