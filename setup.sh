@@ -69,7 +69,7 @@ worker_token() {
         body=$(jq --null-input --arg id "$1" '{agentId: $id, credentialRef: "LLM_PROXY_TOKEN"}' \
             | api POST /api/v1/agents/worker-token /dev/stdin)
     fi
-    jq --raw-output .token <<<"$body" | kubectl --namespace kaop create secret generic "$2" \
+    jq --join-output .token <<<"$body" | kubectl --namespace kaop create secret generic "$2" \
         --from-file token=/dev/stdin --dry-run=client --output yaml | kubectl apply --filename - >/dev/null
 # The shop namespace comes first: the agents' Roles live in it.
 kubectl apply --filename k8s/app.yaml >/dev/null
