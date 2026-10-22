@@ -221,5 +221,5 @@ step "The shop, and the incident"
 
 step "Ready"
 echo "Claude Code on its own:  cd $RUNS/claude-code && claude"
-echo "Claude Code with KAOP:   cd $RUNS/claude-code-kaop && unset KUBECONFIG && claude"
+echo "Claude Code with KAOP:   cd $RUNS/claude-code-kaop && export KUBECONFIG=\$PWD/kubeconfig.yaml && claude   (no such file: no cluster access)"
 echo "Recreate the incident:   ./incident.sh"
