@@ -1,120 +1,128 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: shop
+  name: dot-agent-deck
 ---
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: orders
-  namespace: shop
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: orders
-  template:
-    metadata:
-      labels:
-        app: orders
-    spec:
-      containers:
-        - name: orders
-          image: hashicorp/http-echo:1.0.0
-          args:
-            - -listen=:8080
-            - -text=order accepted
-          ports:
-            - containerPort: 8080
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: orders
-  namespace: shop
-spec:
-  selector:
-    app: orders
-  ports:
-    - port: 8080
-      targetPort: 8080
----
+# The image's own nginx config (site/nginx-default.conf in dot-agent-deck v0.47.1).
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: storefront
-  namespace: shop
+  name: website
+  namespace: dot-agent-deck
 data:
   default.conf: |
     server {
-      listen 80;
-      location /healthz {
-        return 200 "ok\n";
-      }
-      location / {
-        proxy_connect_timeout 2s;
-        proxy_pass http://orders:8080;
-      }
+        listen 8080;
+        server_name _;
+
+        absolute_redirect off;
+        port_in_redirect off;
+
+        root /usr/share/nginx/html;
+        index index.html;
+
+        include /etc/nginx/site-redirects.conf;
+
+        location ~ \.md$ {
+            types { }
+            default_type "text/markdown; charset=utf-8";
+        }
+
+        location ~ ^/(llms|llms-full|robots)\.txt$ {
+            types { }
+            default_type "text/plain; charset=utf-8";
+        }
+
+        location = /sitemap.xml {
+            types { }
+            default_type "application/xml; charset=utf-8";
+        }
+
+        location ~ ^/_(redirects|headers)$ {
+            return 404;
+        }
+
+        location / {
+            try_files $uri $uri/ =404;
+        }
     }
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: storefront
-  namespace: shop
+  name: website
+  namespace: dot-agent-deck
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: storefront
+      app: website
   template:
     metadata:
       labels:
-        app: storefront
+        app: website
     spec:
       containers:
         - name: nginx
-          image: nginx:1.31.7
+          image: ghcr.io/vfarcic/komodor-demo:0.47.1
           ports:
-            - containerPort: 80
+            - containerPort: 8080
           readinessProbe:
             httpGet:
-              path: /healthz
-              port: 80
+              path: /
+              port: 8080
           volumeMounts:
             - name: config
               mountPath: /etc/nginx/conf.d
       volumes:
         - name: config
           configMap:
-            name: storefront
+            name: website
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: storefront
-  namespace: shop
+  name: website
+  namespace: dot-agent-deck
 spec:
   selector:
-    app: storefront
+    app: website
   ports:
     - port: 80
-      targetPort: 80
+      targetPort: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: website
+  namespace: dot-agent-deck
+spec:
+  rules:
+    - host: dot-agent-deck.127.0.0.1.nip.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: website
+                port:
+                  number: 80
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: shopper
-  namespace: shop
+  name: visitor
+  namespace: dot-agent-deck
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: shopper
+      app: visitor
   template:
     metadata:
       labels:
-        app: shopper
+        app: visitor
     spec:
       containers:
         - name: curl
@@ -124,7 +132,7 @@ spec:
             - -c
             - |
               while true; do
-                echo "$(date -u +%H:%M:%S) $(curl -s -m 5 -o /dev/null -w '%{http_code}' http://storefront/checkout)"
+                echo "$(date -u +%H:%M:%S) $(curl -s -m 5 -o /dev/null -w '%{http_code}' http://website/)"
                 sleep 2
               done
 ---
@@ -132,7 +140,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: newsletter
-  namespace: shop
+  namespace: dot-agent-deck
 spec:
   replicas: 1
   selector:

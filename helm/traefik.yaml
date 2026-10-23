@@ -1,0 +1,12 @@
+# Traefik answers on the node's port 80, which kind.yaml maps to this machine's port 80.
+ports:
+  web:
+    hostPort: 80
+  websecure:
+    expose:
+      default: false
+service:
+  type: ClusterIP
+ingressClass:
+  enabled: true
+  isDefaultClass: true

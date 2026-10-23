@@ -9,7 +9,7 @@ cd "$(dirname "$0")"
 KAOP=https://agentops.komodor.com
 RUNS=../kaop-runs
 SINK_NAME="Slack approvals and run reports"
-SCHEDULE_NAME="shop-health-check"
+SCHEDULE_NAME="website-health-check"
 
 : "${AGENTOPS_API_KEY:?Set AGENTOPS_API_KEY (setup.sh saved it to .env).}"
 

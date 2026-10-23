@@ -25,4 +25,4 @@ rbac:
   exec:
     # Komodor's rendered install grants pods/exec cluster-wide. Narrowed to the demo app.
     namespaces:
-      - shop
+      - dot-agent-deck

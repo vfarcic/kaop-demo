@@ -10,6 +10,6 @@ api() {
         --header "Authorization: Bearer $AGENTOPS_API_KEY" \
         --header "Content-Type: application/json" ${3:+--data "$3"}
 }
-ID=$(api GET /api/v1/schedules | jq --raw-output '.[] | select(.name == "shop-health-check") | .schedule_id')
+ID=$(api GET /api/v1/schedules | jq --raw-output '.[] | select(.name == "website-health-check") | .schedule_id')
 api PATCH "/api/v1/schedules/$ID" "{\"is_enabled\": $ENABLED}" \
     | jq --compact-output '{name, cron_expr, is_enabled, last_fired_at}'

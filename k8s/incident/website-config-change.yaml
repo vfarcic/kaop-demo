@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: website
+  namespace: dot-agent-deck
+data:
+  default.conf: |
+    server {
+        listen 8080;
+        server_name _;
+
+        absolute_redirect off;
+        port_in_redirect off;
+
+        root /usr/share/nginx/html;
+        index index.html;
+
+        include /etc/nginx/site-redirects.conf;
+
+        add_header X-Request-ID $request_id always;
+
+        location ~ \.md$ {
+            types { }
+            default_type "text/markdown; charset=utf-8";
+        }
+
+        location ~ ^/(llms|llms-full|robots)\.txt$ {
+            types { }
+            default_type "text/plain; charset=utf-8";
+        }
+
+        location = /sitemap.xml {
+            types { }
+            default_type "application/xml; charset=utf-8";
+        }
+
+        location ~ ^/_(redirects|headers)$ {
+            return 404;
+        }
+
+        location / {
+            try_files $uri $uri/ =404;
+        }
+    }

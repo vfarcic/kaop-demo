@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Sets up everything the demo needs: a kind cluster with the shop app; KAOP's
+# Sets up everything the demo needs: a kind cluster with the dot-agent-deck website; KAOP's
 # Kubernetes RCA, the Kubernetes Remediator and dot-ai in it; the approval rules, Slack,
 # a schedule, and Claude Code connected to KAOP. Asks for what it can't find, and
 # saves the answers to .env (gitignored; `devbox shell` loads it) so a re-run
@@ -17,7 +17,7 @@ REMEDIATOR_IMAGE=kaop-remediator:0.1.2202-kubectl1.36.3
 DOT_AI_WORKER_IMAGE=kaop-dot-ai-worker:0.1.2202-1
 RUNS=../kaop-runs
 SINK_NAME="Slack approvals and run reports"
-SCHEDULE_NAME="shop-health-check"
+SCHEDULE_NAME="website-health-check"
 
 step() { printf '\n== %s\n' "$*"; }
 
@@ -73,7 +73,7 @@ worker_token() {
     fi
     jq --join-output .token <<<"$body" | kubectl --namespace kaop create secret generic "$2" \
         --from-file token=/dev/stdin --dry-run=client --output yaml | kubectl apply --filename - >/dev/null
-# The shop namespace comes first: the agents' Roles live in it.
+# The dot-agent-deck namespace comes first: the agents' Roles live in it.
 kubectl apply --filename k8s/app.yaml >/dev/null
 }
 
@@ -126,9 +126,13 @@ step "Cluster"
 if kind get clusters | grep --quiet --line-regexp kaop; then
     echo "kind cluster kaop exists."
 else
-    kind create cluster --name kaop --kubeconfig "$KUBECONFIG"
+    kind create cluster --name kaop --kubeconfig "$KUBECONFIG" --config kind.yaml
 fi
 kubectl create namespace kaop --dry-run=client --output yaml | kubectl apply --filename - >/dev/null
+# Ingress for the website, on this machine's port 80.
+helm upgrade --install traefik oci://ghcr.io/traefik/helm/traefik --version 42.1.3 \
+    --namespace traefik --create-namespace --values helm/traefik.yaml --wait >/dev/null
+echo "Traefik is serving http://*.127.0.0.1.nip.io."
 
 step "Claude Code"
 mkdir -p "$RUNS/claude-code" "$RUNS/claude-code-kaop"
@@ -172,7 +176,7 @@ install kubernetes-rca helm/kubernetes-rca.yaml
 online kubernetes-rca-kaop kubernetes-rca
 echo "Installed."
 
-step "Kubernetes Remediator (can change the shop)"
+step "Kubernetes Remediator (can change the website)"
 # Komodor's base image has no kubectl, so the remediator image adds it.
 docker build --quiet --tag "$REMEDIATOR_IMAGE" remediator >/dev/null
 kind load docker-image "$REMEDIATOR_IMAGE" --name kaop >/dev/null
@@ -251,12 +255,13 @@ if [ -z "$(api GET /api/v1/schedules | jq --raw-output --arg name "$SCHEDULE_NAM
     jq --arg id "$REMEDIATOR_ID" --arg name "$SCHEDULE_NAME" '.agent_id = $id | .name = $name' kaop/schedule.json \
         | api POST /api/v1/schedules /dev/stdin >/dev/null
 fi
-echo "Every five minutes, the Kubernetes Remediator checks checkouts and fixes what it finds."
+echo "Every five minutes, the Kubernetes Remediator checks the website and fixes what it finds."
 
-step "The shop, and the incident"
+step "The website, and the incident"
 ./incident.sh
 
 step "Ready"
 echo "Claude Code on its own:  cd $RUNS/claude-code && claude"
 echo "Claude Code with KAOP:   cd $RUNS/claude-code-kaop && export KUBECONFIG=\$PWD/kubeconfig.yaml && claude   (no such file: no cluster access)"
+echo "The website:             http://dot-agent-deck.127.0.0.1.nip.io"
 echo "Recreate the incident:   ./incident.sh"
