@@ -1,9 +1,9 @@
-# Write access for the shop remediator, in the shop namespace only.
+# Write access for the Kubernetes Remediator, in the shop namespace only.
 # The chart's rbac.create adds cluster-wide read (Kubernetes' view role) on top.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: shop-remediator
+  name: kubernetes-remediator
   namespace: shop
 rules:
   - apiGroups: ["apps"]
@@ -16,13 +16,13 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: shop-remediator
+  name: kubernetes-remediator
   namespace: shop
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: shop-remediator
+  name: kubernetes-remediator
 subjects:
   - kind: ServiceAccount
-    name: shop-remediator-agentops-agent-base
+    name: kubernetes-remediator-agentops-agent-base
     namespace: kaop

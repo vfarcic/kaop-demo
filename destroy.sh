@@ -21,7 +21,7 @@ api() {
 
 agent_id() { api GET "/api/v1/agents?include_archived=true" | jq --raw-output --arg slug "$1" '.[] | select(.id_slug == $slug) | .agent_id'; }
 
-REMEDIATOR_ID=$(agent_id shop-remediator)
+REMEDIATOR_ID=$(agent_id kubernetes-remediator)
 
 # The cluster goes first: KAOP deletes an agent only once its worker is offline.
 kind delete cluster --name kaop
@@ -40,7 +40,7 @@ for id in $(api GET /api/v1/notification-sinks | jq --raw-output --arg name "$SI
     api DELETE "/api/v1/notification-sinks/$id" >/dev/null && echo "Deleted the Slack sink."
 done
 
-for slug in shop-remediator dot-ai kubernetes-rca-kaop; do
+for slug in kubernetes-remediator dot-ai kubernetes-rca-kaop; do
     id=$(agent_id "$slug")
     [ -n "$id" ] || continue
     for budget in $(api GET "/api/v1/cost/agent-budgets/$id" | jq --raw-output '.[]? | .budget_id'); do

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Usage: ./schedule.sh on|off
-# Turns the Shop Remediator's five-minute health check (created by setup.sh) on or off.
+# Turns the Kubernetes Remediator's five-minute health check (created by setup.sh) on or off.
 set -euo pipefail
 : "${AGENTOPS_API_KEY:?Set AGENTOPS_API_KEY (setup.sh saved it to .env).}"
 case "${1:-}" in on) ENABLED=true ;; off) ENABLED=false ;; *) echo "Usage: $0 on|off"; exit 1 ;; esac

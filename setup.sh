@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Sets up everything the demo needs: a kind cluster with the shop app; KAOP's
-# Kubernetes RCA, the Shop Remediator and dot-ai in it; the approval rules, Slack,
+# Kubernetes RCA, the Kubernetes Remediator and dot-ai in it; the approval rules, Slack,
 # a schedule, and Claude Code connected to KAOP. Asks for what it can't find, and
 # saves the answers to .env (gitignored; `devbox shell` loads it) so a re-run
 # doesn't ask again. Run it from the repo root, in `devbox shell`. Safe to re-run.
@@ -172,15 +172,15 @@ install kubernetes-rca helm/kubernetes-rca.yaml
 online kubernetes-rca-kaop kubernetes-rca
 echo "Installed."
 
-step "Shop Remediator (can change the shop)"
+step "Kubernetes Remediator (can change the shop)"
 # Komodor's base image has no kubectl, so the remediator image adds it.
 docker build --quiet --tag "$REMEDIATOR_IMAGE" remediator >/dev/null
 kind load docker-image "$REMEDIATOR_IMAGE" --name kaop >/dev/null
-worker_token shop-remediator shop-remediator-token
+worker_token kubernetes-remediator kubernetes-remediator-token
 kubectl apply --filename k8s/remediator-rbac.yaml >/dev/null
-install shop-remediator helm/shop-remediator.yaml
-online shop-remediator shop-remediator
-REMEDIATOR_ID=$(agent_id shop-remediator)
+install kubernetes-remediator helm/kubernetes-remediator.yaml
+online kubernetes-remediator kubernetes-remediator
+REMEDIATOR_ID=$(agent_id kubernetes-remediator)
 echo "Installed."
 
 step "dot-ai (an agent brought into KAOP)"
@@ -227,7 +227,7 @@ if ! api GET "/api/v1/notification-sinks/$SINK_ID/subscriptions" \
     jq --null-input --arg id "$REMEDIATOR_ID" '{target_type: "agent", target_id: $id}' \
         | api POST "/api/v1/notification-sinks/$SINK_ID/subscriptions" /dev/stdin >/dev/null
 fi
-# Mentioning KAOP's bot in the channel starts the Shop Remediator.
+# Mentioning KAOP's bot in the channel starts the Kubernetes Remediator.
 CHANNEL_ID=$(api GET /api/v1/channels | jq --raw-output '.[] | select(.provider == "slack" and .status == "active") | .id' | head -1)
 if ! api GET "/api/v1/channels/$CHANNEL_ID/routes" \
     | jq --exit-status --arg id "$REMEDIATOR_ID" --arg channel "$SLACK_CHANNEL_NAME" \
@@ -240,8 +240,8 @@ api POST "/api/v1/notification-sinks/$SINK_ID/test-send" >/dev/null
 echo "Sent a test message to #$SLACK_CHANNEL_NAME."
 
 step "Approval rules"
-# Shop Remediator: kubectl commands that change something wait up to 15 minutes for you in Slack.
-permission "$REMEDIATOR_ID" kaop/shop-remediator-permissions.json
+# Kubernetes Remediator: kubectl commands that change something wait up to 15 minutes for you in Slack.
+permission "$REMEDIATOR_ID" kaop/kubernetes-remediator-permissions.json
 # dot-ai: its whole plan waits for you before it executes.
 permission "$DOT_AI_ID" kaop/dot-ai-permissions.json
 echo "Both agents ask before they change anything."
@@ -251,7 +251,7 @@ if [ -z "$(api GET /api/v1/schedules | jq --raw-output --arg name "$SCHEDULE_NAM
     jq --arg id "$REMEDIATOR_ID" --arg name "$SCHEDULE_NAME" '.agent_id = $id | .name = $name' kaop/schedule.json \
         | api POST /api/v1/schedules /dev/stdin >/dev/null
 fi
-echo "Every five minutes, the Shop Remediator checks checkouts and fixes what it finds."
+echo "Every five minutes, the Kubernetes Remediator checks checkouts and fixes what it finds."
 
 step "The shop, and the incident"
 ./incident.sh
