@@ -156,7 +156,11 @@ if command -v claude >/dev/null; then
 }
 EOF
     echo "KAOP is added to Claude Code in $RUNS/claude-code-kaop, with no cluster access of its own."
-    pause "If you haven't signed in to KAOP from Claude Code before: in another terminal, cd $RUNS/claude-code-kaop, run claude, type /mcp, select agentops and sign in."
+    # The sign-in is OAuth in a browser, so it's yours to do. destroy.sh removes the server and
+    # with it the sign-in, so every fresh setup needs it again.
+    while (cd "$RUNS/claude-code-kaop" && claude mcp list 2>/dev/null) | grep "^agentops:" | grep -q "Needs authentication"; do
+        pause "Sign in to KAOP from Claude Code: in another terminal, cd $RUNS/claude-code-kaop, run claude, type /mcp, select agentops and sign in."
+    done
 else
     echo "Claude Code not found. Add this remote MCP server (HTTP, OAuth) to your agent: $MCP_URL"
 fi
